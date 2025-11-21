@@ -1,0 +1,114 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# Data files (keep directory structure, ignore audio files)
+data/raw/*.wav
+data/raw/*.mp3
+data/train/**/*.wav
+data/train/**/*.mp3
+data/test/**/*.wav
+data/test/**/*.mp3
+data/uploaded/**/*.wav
+data/uploaded/**/*.mp3
+data/uploaded/**/*.flac
+data/uploaded/**/*.ogg
+*.csv
+*.arff
+# Keep RAVDESS dataset structure
+!data/raw/Audio_Speech_Actors_*/Actor_*/*.wav
+
+# Model files (too large for git)
+models/*.h5
+models/*.pkl
+models/*.pb
+models/*.pth
+models/*.ckpt
+models/saved_model/
+# KEEP the production model for deployment
+!models/vishing_detector_keras3.keras
+
+# Logs (keep directory, ignore log files)
+logs/*.log
+*.log
+!logs/.gitkeep
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Docker
+.dockerignore
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Cloud credentials
+credentials.json
+*.pem
+*.key
+gcp-credentials.json
+aws-credentials.csv
+
+# Locust
+locust.log
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Large files
+*.zip
+*.tar.gz
+*.rar
+
+# Windows reserved filename
+nul
