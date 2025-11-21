@@ -1,0 +1,10 @@
+{
+  "status": "failed",
+  "progress": 40,
+  "message": "Retraining failed: Input 0 of layer \"conv2d\" is incompatible with the layer: expected min_ndim=4, found ndim=3. Full shape received: (None, 1, 1)",
+  "started_at": "2025-11-18T09:11:06.040164",
+  "completed_at": null,
+  "error": "Input 0 of layer \"conv2d\" is incompatible with the layer: expected min_ndim=4, found ndim=3. Full shape received: (None, 1, 1)",
+  "metrics": {},
+  "version_id": null
+}
