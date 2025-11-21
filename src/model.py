@@ -347,7 +347,14 @@ class AudioClassifier:
     def load_model(cls, model_path: str = 'models/audio_classifier.h5'):
         """Load trained model"""
         # Load metadata
-        metadata_path = model_path.replace('.h5', '_metadata.json')
+        base_path, _ = os.path.splitext(model_path)
+        # Check for both naming conventions
+        metadata_path = f"{base_path}_metadata.json"
+        
+        # Fallback for legacy naming if needed
+        if not os.path.exists(metadata_path) and model_path.endswith('.h5'):
+             metadata_path = model_path.replace('.h5', '_metadata.json')
+             
         with open(metadata_path, 'r') as f:
             metadata = json.load(f)
 
