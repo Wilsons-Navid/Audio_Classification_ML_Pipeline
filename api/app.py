@@ -178,8 +178,9 @@ def load_model_with_compat():
 
     try:
         model_paths = [
-            'models/vishing_detector_keras3.keras',  # Keras 3.x native format
-            'models/vishing_detector_savedmodel',     # TensorFlow SavedModel
+            'models/vishing_detector_savedmodel_v2',   # SavedModel (most stable)
+            'models/vishing_detector_keras3.keras',    # Keras 3.x native format
+            'models/vishing_detector_savedmodel',      # Legacy SavedModel
             'models/vishing_detector_compatible.h5',   # Converted H5
             'models/vishing_detector_final.h5',        # Original (Keras 2.x)
             'models/best_vishing_model.h5',            # Alternative (Keras 2.x)
@@ -206,17 +207,8 @@ def load_model_with_compat():
                     return True
 
                 except Exception as e:
-                    logger.warning(f"Failed with compile=False: {str(e)}")
-
-                    # Try legacy loading
-                    try:
-                        with tf.keras.utils.custom_object_scope({}):
-                            model = tf.compat.v1.keras.models.load_model(model_path)
-                        logger.info("SUCCESS: Model loaded with legacy mode!")
-                        return True
-                    except Exception as e2:
-                        logger.warning(f"Failed with legacy mode: {str(e2)}")
-                        continue
+                    logger.warning(f"Failed to load {model_path}: {str(e)}")
+                    continue
 
         logger.error("Could not load model with any method")
         return False
