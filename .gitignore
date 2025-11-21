@@ -55,6 +55,7 @@ models/*.ckpt
 models/saved_model/
 # KEEP the production model for deployment
 !models/vishing_detector_keras3.keras
+!models/vishing_detector_keras3_metadata.json
 
 # Logs (keep directory, ignore log files)
 logs/*.log
