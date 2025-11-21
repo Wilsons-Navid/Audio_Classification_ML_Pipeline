@@ -8,12 +8,21 @@
 
 ## 🌐 Live Production Deployment
 
+**✅ Status**: **LIVE AND OPERATIONAL** (Model loaded successfully!)
+
 **🚀 Try it now**: [https://voice-phishing-detector.onrender.com/](https://voice-phishing-detector.onrender.com/)
 
 **Quick Links**:
-- 📊 Dashboard: [https://voice-phishing-detector.onrender.com/](https://voice-phishing-detector.onrender.com/)
-- 💚 Health Check: [https://voice-phishing-detector.onrender.com/health](https://voice-phishing-detector.onrender.com/health)
-- 📖 API Docs: See [API Documentation](#-api-documentation) below
+- 📊 **Dashboard**: [https://voice-phishing-detector.onrender.com/](https://voice-phishing-detector.onrender.com/)
+- 💚 **Health Check**: [https://voice-phishing-detector.onrender.com/health](https://voice-phishing-detector.onrender.com/health)
+- 📖 **API Docs**: See [API Documentation](#-api-documentation) below
+
+**Deployment Details**:
+- **Platform**: Render (Cloud)
+- **Model Format**: H5 (Keras 3 compatible)
+- **Model**: CNN with 489,730 parameters
+- **Classes**: Legitimate, Suspicious
+- **Last Verified**: 2025-11-21
 
 > **Note**: Free tier may have cold start delay (~30 seconds) if inactive for 15+ minutes.
 
