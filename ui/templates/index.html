@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Classification Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-online {
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+        }
+
+        .status-offline {
+            background: #ef4444;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            color: #1f2937;
+            font-weight: 600;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .file-input-label:hover {
+            background: #5568d3;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px 20px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #059669;
+        }
+
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .prediction-result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .prediction-result h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .probability-bar {
+            margin: 10px 0;
+        }
+
+        .probability-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .progress {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        #selectedFiles {
+            margin-top: 10px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .loader {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Audio Classification Dashboard</h1>
+
+        <div class="dashboard">
+            <!-- System Status Card -->
+            <div class="card">
+                <h2>System Status</h2>
+                <div class="metric">
+                    <span class="metric-label">
+                        <span class="status-indicator status-online"></span>
+                        Model Status
+                    </span>
+                    <span class="metric-value" id="modelStatus">Online</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Uptime</span>
+                    <span class="metric-value" id="uptime">Loading...</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Last Updated</span>
+                    <span class="metric-value" id="lastUpdate">Just now</span>
+                </div>
+            </div>
+
+            <!-- Single Prediction Card -->
+            <div class="card">
+                <h2>Single File Prediction</h2>
+                <div class="file-input-wrapper">
+                    <input type="file" id="singleFile" accept=".wav,.mp3,.flac,.ogg">
+                    <label for="singleFile" class="file-input-label">Choose Audio File</label>
+                </div>
+                <div id="singleFileName"></div>
+                <button onclick="predictSingle()">Predict</button>
+                <div class="loader" id="singleLoader"></div>
+                <div id="singleResult"></div>
+            </div>
+
+            <!-- Batch Upload Card -->
+            <div class="card">
+                <h2>Batch Upload & Retrain</h2>
+                <div class="file-input-wrapper">
+                    <input type="file" id="batchFiles" multiple accept=".wav,.mp3,.flac,.ogg">
+                    <label for="batchFiles" class="file-input-label">Choose Multiple Files</label>
+                </div>
+                <div id="selectedFiles"></div>
+                <button onclick="uploadAndRetrain()">Upload & Trigger Retrain</button>
+                <div class="loader" id="batchLoader"></div>
+                <div id="batchResult"></div>
+            </div>
+        </div>
+
+        <!-- Model Metrics Section -->
+        <div class="card">
+            <h2>Model Performance Metrics</h2>
+            <div id="metricsContainer">
+                <p>Loading metrics...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update system status
+        async function updateStatus() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+
+                document.getElementById('uptime').textContent =
+                    Math.floor(data.uptime_seconds / 60) + ' minutes';
+                document.getElementById('lastUpdate').textContent = 'Just now';
+
+            } catch (error) {
+                console.error('Error fetching status:', error);
+            }
+        }
+
+        // Show selected file name
+        document.getElementById('singleFile').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name || '';
+            document.getElementById('singleFileName').innerHTML =
+                fileName ? `<small>Selected: ${fileName}</small>` : '';
+        });
+
+        // Show selected files count
+        document.getElementById('batchFiles').addEventListener('change', function(e) {
+            const count = e.target.files.length;
+            document.getElementById('selectedFiles').innerHTML =
+                count > 0 ? `<small>Selected ${count} file(s)</small>` : '';
+        });
+
+        // Single file prediction
+        async function predictSingle() {
+            const fileInput = document.getElementById('singleFile');
+            const loader = document.getElementById('singleLoader');
+            const resultDiv = document.getElementById('singleResult');
+
+            if (!fileInput.files[0]) {
+                resultDiv.innerHTML = '<div class="alert alert-error">Please select a file</div>';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            loader.style.display = 'block';
+            resultDiv.innerHTML = '';
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                loader.style.display = 'none';
+
+                if (response.ok) {
+                    let html = `
+                        <div class="prediction-result">
+                            <h3>Prediction: ${data.predicted_class}</h3>
+                            <p><strong>Confidence:</strong> ${(data.confidence * 100).toFixed(2)}%</p>
+                    `;
+
+                    if (data.probabilities) {
+                        html += '<h4 style="margin-top: 15px;">All Probabilities:</h4>';
+                        for (const [className, prob] of Object.entries(data.probabilities)) {
+                            html += `
+                                <div class="probability-bar">
+                                    <div class="probability-label">
+                                        <span>${className}</span>
+                                        <span>${(prob * 100).toFixed(1)}%</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: ${prob * 100}%"></div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+
+                    html += '</div>';
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<div class="alert alert-error">${data.error}</div>`;
+                }
+            } catch (error) {
+                loader.style.display = 'none';
+                resultDiv.innerHTML = `<div class="alert alert-error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Upload and retrain
+        async function uploadAndRetrain() {
+            const fileInput = document.getElementById('batchFiles');
+            const loader = document.getElementById('batchLoader');
+            const resultDiv = document.getElementById('batchResult');
+
+            if (!fileInput.files.length) {
+                resultDiv.innerHTML = '<div class="alert alert-error">Please select files</div>';
+                return;
+            }
+
+            const formData = new FormData();
+            for (const file of fileInput.files) {
+                formData.append('files', file);
+            }
+            formData.append('class_label', 'new_class'); // You can make this dynamic
+
+            loader.style.display = 'block';
+            resultDiv.innerHTML = '';
+
+            try {
+                // Upload files
+                const uploadResponse = await fetch('/upload_training_data', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const uploadData = await uploadResponse.json();
+
+                if (uploadResponse.ok) {
+                    // Trigger retraining
+                    const retrainResponse = await fetch('/retrain', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            epochs: 30,
+                            batch_size: 32
+                        })
+                    });
+
+                    const retrainData = await retrainResponse.json();
+                    loader.style.display = 'none';
+
+                    if (retrainResponse.ok) {
+                        resultDiv.innerHTML = `
+                            <div class="alert alert-success">
+                                <p>✓ Uploaded ${uploadData.files.length} files successfully!</p>
+                                <p>✓ ${retrainData.message}</p>
+                                <div style="margin-top: 15px;">
+                                    <strong>Retraining Progress:</strong>
+                                    <div class="progress" style="height: 30px; margin-top: 10px;">
+                                        <div class="progress-bar" id="retrainProgress" style="width: 0%; transition: width 0.5s;">0%</div>
+                                    </div>
+                                    <p id="retrainMessage" style="margin-top: 10px; color: #6b7280;">Initializing...</p>
+                                </div>
+                            </div>
+                        `;
+
+                        // Start polling for status
+                        pollRetrainingStatus();
+                    } else {
+                        resultDiv.innerHTML = `<div class="alert alert-error">${retrainData.error || retrainData.message}</div>`;
+                    }
+                } else {
+                    loader.style.display = 'none';
+                    resultDiv.innerHTML = `<div class="alert alert-error">${uploadData.error}</div>`;
+                }
+            } catch (error) {
+                loader.style.display = 'none';
+                resultDiv.innerHTML = `<div class="alert alert-error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Poll retraining status
+        let retrainingPollInterval = null;
+
+        async function pollRetrainingStatus() {
+            if (retrainingPollInterval) {
+                clearInterval(retrainingPollInterval);
+            }
+
+            retrainingPollInterval = setInterval(async () => {
+                try {
+                    const response = await fetch('/retrain_status');
+                    const data = await response.json();
+
+                    const progressBar = document.getElementById('retrainProgress');
+                    const messageEl = document.getElementById('retrainMessage');
+
+                    if (progressBar && messageEl) {
+                        // Update progress bar
+                        progressBar.style.width = `${data.progress}%`;
+                        progressBar.textContent = `${data.progress}%`;
+
+                        // Update message
+                        messageEl.textContent = data.message || 'Processing...';
+
+                        // Check if completed
+                        if (data.status === 'completed') {
+                            clearInterval(retrainingPollInterval);
+                            progressBar.style.backgroundColor = '#10b981';
+                            messageEl.innerHTML = `
+                                <strong style="color: #10b981;">✓ Retraining completed successfully!</strong><br>
+                                <small>Accuracy: ${data.metrics?.metrics?.accuracy || 'N/A'}</small><br>
+                                <small>Model saved at: ${new Date(data.completed_at).toLocaleString()}</small>
+                            `;
+
+                            // Refresh page after 3 seconds to load new model
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 3000);
+                        } else if (data.status === 'failed') {
+                            clearInterval(retrainingPollInterval);
+                            progressBar.style.backgroundColor = '#ef4444';
+                            messageEl.innerHTML = `<strong style="color: #ef4444;">✗ Retraining failed: ${data.error}</strong>`;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error polling status:', error);
+                }
+            }, 2000); // Poll every 2 seconds
+        }
+
+        // Update status every 30 seconds
+        updateStatus();
+        setInterval(updateStatus, 30000);
+    </script>
+</body>
+</html>
