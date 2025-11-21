@@ -178,12 +178,12 @@ def load_model_with_compat():
 
     try:
         model_paths = [
-            'models/vishing_detector_savedmodel_v2',   # SavedModel (most stable)
-            'models/vishing_detector_keras3.keras',    # Keras 3.x native format
+            'models/best_vishing_model.h5',            # H5 format (Keras 3 compatible)
+            'models/vishing_detector_final.h5',        # H5 format (Keras 3 compatible)
+            'models/vishing_detector_compatible.h5',   # H5 format (Keras 3 compatible)
+            'models/vishing_detector_savedmodel_v2',   # SavedModel (has issues)
+            'models/vishing_detector_keras3.keras',    # Keras 3.x (has deserialization issues)
             'models/vishing_detector_savedmodel',      # Legacy SavedModel
-            'models/vishing_detector_compatible.h5',   # Converted H5
-            'models/vishing_detector_final.h5',        # Original (Keras 2.x)
-            'models/best_vishing_model.h5',            # Alternative (Keras 2.x)
         ]
 
         for model_path in model_paths:

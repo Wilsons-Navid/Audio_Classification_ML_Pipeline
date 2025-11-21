@@ -57,6 +57,8 @@ models/saved_model/
 !models/vishing_detector_keras3.keras
 !models/vishing_detector_keras3_metadata.json
 !models/vishing_detector_savedmodel_v2/
+!models/best_vishing_model.h5
+!models/vishing_detector_final.h5
 
 # Logs (keep directory, ignore log files)
 logs/*.log
