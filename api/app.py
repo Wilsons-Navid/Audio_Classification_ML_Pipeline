@@ -481,8 +481,6 @@ def get_retrain_status():
 @app.route('/debug')
 def debug_info():
     """Debug endpoint to check system state"""
-    import psutil
-    
     files = []
     for root, dirs, filenames in os.walk('.'):
         for filename in filenames:
@@ -492,7 +490,6 @@ def debug_info():
     return jsonify({
         'files': files[:100],  # Limit output
         'models_dir': os.listdir('models') if os.path.exists('models') else 'models dir not found',
-        'memory': dict(psutil.virtual_memory()._asdict()),
         'cwd': os.getcwd(),
         'python_version': sys.version,
         'tensorflow_version': tf.__version__
@@ -509,19 +506,12 @@ def force_load():
         if not os.path.exists(path):
             return jsonify({'error': f'File not found: {path}'}), 404
             
-        # Check memory before load
-        import psutil
-        mem_before = psutil.virtual_memory().available / (1024 * 1024)
-        
         loaded_instance = AudioClassifier.load_model(path)
         model = loaded_instance.model
         
-        mem_after = psutil.virtual_memory().available / (1024 * 1024)
-        
         return jsonify({
             'status': 'success', 
-            'message': 'Model loaded successfully',
-            'memory_delta_mb': mem_before - mem_after
+            'message': 'Model loaded successfully'
         })
     except Exception as e:
         import traceback
