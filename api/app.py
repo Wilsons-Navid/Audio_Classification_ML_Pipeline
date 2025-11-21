@@ -512,27 +512,37 @@ def force_load():
         return jsonify({
             'status': 'success', 
             'message': 'Model loaded successfully'
-        })
+        }
+)
     except Exception as e:
         import traceback
         return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
 
+# ============================================================================
+# MODULE-LEVEL INITIALIZATION (runs when Gunicorn imports this module)
+# ============================================================================
+logger.info("="*60)
+logger.info("Initializing Voice Phishing Detection API...")
+logger.info("="*60)
+
+# Load model at module level so it works with Gunicorn
+model_loaded = load_model_with_compat()
+
+if model_loaded:
+    logger.info("="*60)
+    logger.info("SUCCESS: Model loaded - Ready to serve predictions!")
+    logger.info("="*60)
+else:
+    logger.warning("="*60)
+    logger.warning("WARNING: Model not loaded - API will return 503 errors")
+    logger.warning("="*60)
+
+# ============================================================================
+# DEVELOPMENT SERVER (only runs when executed directly)
+# ============================================================================
 if __name__ == '__main__':
-    logger.info("="*60)
-    logger.info("Starting Voice Phishing Detection API...")
-    logger.info("="*60)
-
-    model_loaded = load_model_with_compat()
-
-    if model_loaded:
-        logger.info("="*60)
-        logger.info("SUCCESS: Model loaded - Ready to serve predictions!")
-        logger.info("="*60)
-    else:
-        logger.warning("="*60)
-        logger.warning("WARNING: Model not loaded - API will return 503 errors")
-        logger.warning("="*60)
-
+    logger.info("Starting development server...")
+    
     # Run Flask app
     app.run(
         host='0.0.0.0',
