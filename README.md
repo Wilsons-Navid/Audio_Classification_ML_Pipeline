@@ -6,6 +6,17 @@
 [![Flask](https://img.shields.io/badge/Flask-2.x-green.svg)](https://flask.palletsprojects.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+## 🌐 Live Production Deployment
+
+**🚀 Try it now**: [https://voice-phishing-detector.onrender.com/](https://voice-phishing-detector.onrender.com/)
+
+**Quick Links**:
+- 📊 Dashboard: [https://voice-phishing-detector.onrender.com/](https://voice-phishing-detector.onrender.com/)
+- 💚 Health Check: [https://voice-phishing-detector.onrender.com/health](https://voice-phishing-detector.onrender.com/health)
+- 📖 API Docs: See [API Documentation](#-api-documentation) below
+
+> **Note**: Free tier may have cold start delay (~30 seconds) if inactive for 15+ minutes.
+
 ---
 
 ## 📋 Table of Contents
@@ -516,7 +527,7 @@ locust -f tests/locustfile.py --host=http://localhost:5000 \
 ### Base URL
 
 **Local**: `http://localhost:5000`  
-**Production**: `https://your-deployment-url.com`
+**Production**: `https://voice-phishing-detector.onrender.com`
 
 ### Endpoints
 
