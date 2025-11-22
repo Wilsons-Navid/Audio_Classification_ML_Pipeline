@@ -120,54 +120,63 @@ def preprocess_audio(file_path):
     return features
 
 
-def generate_visualizations(audio, sr):
+def generate_visualizations(audio, sr, mel_spec_db=None):
     """Generate audio visualizations (Waveform, Mel Spectrogram, MFCC)"""
     visualizations = {}
     
     try:
+        # Create figure once and reuse
+        fig = plt.figure(figsize=(8, 2))
+        
         # 1. Waveform
-        plt.figure(figsize=(10, 3))
         librosa.display.waveshow(audio, sr=sr)
         plt.title('Waveform')
         plt.tight_layout()
         
         buf = io.BytesIO()
-        plt.savefig(buf, format='png')
+        plt.savefig(buf, format='png', dpi=70)
         buf.seek(0)
         visualizations['waveform'] = base64.b64encode(buf.getvalue()).decode('utf-8')
-        plt.close()
+        plt.clf()  # Clear figure for next plot
         
         # 2. Mel Spectrogram
-        plt.figure(figsize=(10, 3))
-        S = librosa.feature.melspectrogram(y=audio, sr=sr, n_mels=128)
-        S_db = librosa.power_to_db(S, ref=np.max)
-        librosa.display.specshow(S_db, sr=sr, x_axis='time', y_axis='mel')
+        if mel_spec_db is None:
+            S = librosa.feature.melspectrogram(y=audio, sr=sr, n_mels=128)
+            mel_spec_db = librosa.power_to_db(S, ref=np.max)
+            
+        librosa.display.specshow(mel_spec_db, sr=sr, x_axis='time', y_axis='mel')
         plt.colorbar(format='%+2.0f dB')
         plt.title('Mel Spectrogram')
         plt.tight_layout()
         
         buf = io.BytesIO()
-        plt.savefig(buf, format='png')
+        plt.savefig(buf, format='png', dpi=70)
         buf.seek(0)
         visualizations['spectrogram'] = base64.b64encode(buf.getvalue()).decode('utf-8')
-        plt.close()
+        plt.clf()
         
         # 3. MFCC
-        plt.figure(figsize=(10, 3))
-        mfccs = librosa.feature.mfcc(y=audio, sr=sr, n_mfcc=13)
+        # Use pre-computed log-power Mel spectrogram for MFCC if available
+        if mel_spec_db is not None:
+            mfccs = librosa.feature.mfcc(S=mel_spec_db, sr=sr, n_mfcc=13)
+        else:
+            mfccs = librosa.feature.mfcc(y=audio, sr=sr, n_mfcc=13)
+            
         librosa.display.specshow(mfccs, x_axis='time')
         plt.colorbar()
         plt.title('MFCC')
         plt.tight_layout()
         
         buf = io.BytesIO()
-        plt.savefig(buf, format='png')
+        plt.savefig(buf, format='png', dpi=70)
         buf.seek(0)
         visualizations['mfcc'] = base64.b64encode(buf.getvalue()).decode('utf-8')
-        plt.close()
+        plt.close(fig)
         
     except Exception as e:
         logger.error(f"Error generating visualizations: {str(e)}")
+        if 'fig' in locals():
+            plt.close(fig)
         
     return visualizations
 
@@ -270,8 +279,14 @@ def predict_single():
 
         logger.info(f"Processing file: {filename}")
 
-        # Preprocess audio
-        features = preprocess_audio(filepath)
+        # Load audio once
+        audio = load_audio(filepath)
+        
+        # Extract features (mel spectrogram)
+        mel_spec_db = extract_mel_spectrogram(audio)
+        
+        # Prepare for model (add batch/channel dims)
+        features = mel_spec_db[np.newaxis, ..., np.newaxis]
 
         # Make prediction
         predictions = model.predict(features, verbose=0)
@@ -290,10 +305,10 @@ def predict_single():
             }
         }
 
-        # Generate visualizations
+        # Generate visualizations efficiently
         try:
-            audio = load_audio(filepath)
-            viz = generate_visualizations(audio, SAMPLE_RATE)
+            # Pass pre-computed features to avoid re-calculation
+            viz = generate_visualizations(audio, SAMPLE_RATE, mel_spec_db=mel_spec_db)
             result['visualizations'] = viz
         except Exception as e:
             logger.error(f"Visualization error: {e}")
