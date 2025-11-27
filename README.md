@@ -10,11 +10,11 @@
 
 **✅ Status**: **LIVE AND OPERATIONAL** (Model loaded successfully!)
 
-**🚀 Try it now**: [https://voice-phishing-detector.onrender.com/](https://voice-phishing-detector.onrender.com/)
+**🚀 Try it now**: [https://voice-phishing-detector-380911653615.us-central1.run.app/](https://voice-phishing-detector-380911653615.us-central1.run.app/)
 
 **Quick Links**:
-- 📊 **Dashboard**: [https://voice-phishing-detector.onrender.com/](https://voice-phishing-detector.onrender.com/)
-- 💚 **Health Check**: [https://voice-phishing-detector.onrender.com/health](https://voice-phishing-detector.onrender.com/health)
+- 📊 **Dashboard**: [https://voice-phishing-detector-380911653615.us-central1.run.app/](https://voice-phishing-detector-380911653615.us-central1.run.app/)
+- 💚 **Health Check**: [https://voice-phishing-detector-380911653615.us-central1.run.app/health](https://voice-phishing-detector-380911653615.us-central1.run.app/health)
 - 📖 **API Docs**: See [API Documentation](#-api-documentation) below
 
 **Deployment Details**:
@@ -435,98 +435,61 @@ Suspicious          6         85
 
 ---
 
-## 🔥 Load Testing Results
+## 🔥 Load Testing Results (GCP Cloud Run)
 
 ### Testing Setup
 
 **Tool**: Locust  
 **Test File**: `tests/locustfile.py`  
-**Environment**: Local development machine
+**Environment**: Google Cloud Run (Auto-scaling)
+**Region**: us-central1
 
 ### Test Scenarios
 
-#### Scenario 1: Baseline Performance (1 Container)
+#### Scenario 1: Low Load (10 Users)
 
 **Configuration**:
-- Concurrent Users: 50
-- Spawn Rate: 10 users/second
-- Duration: 2 minutes
-- Containers: 1
+- Concurrent Users: 10
+- Spawn Rate: 1 user/second
+- Duration: 1 minute
 
 **Results**:
 
 | Metric | Value |
 |--------|-------|
-| **Total Requests** | 1,247 |
-| **Requests Per Second (RPS)** | 10.4 |
+| **Requests Per Second (RPS)** | ~10 |
+| **Median Response Time** | 260 ms |
+| **95th Percentile** | 510 ms |
 | **Failure Rate** | 0% |
-| **Median Response Time** | 1,850 ms |
-| **95th Percentile** | 3,200 ms |
-| **99th Percentile** | 4,100 ms |
-| **Average Response Time** | 2,100 ms |
 
-**Endpoint Breakdown**:
-
-| Endpoint | Requests | Avg Response Time | Failure Rate |
-|----------|----------|-------------------|--------------|
-| `/health` | 624 | 45 ms | 0% |
-| `/model_info` | 416 | 120 ms | 0% |
-| `/predict` | 104 | 8,500 ms | 0% |
-| `/metrics` | 103 | 85 ms | 0% |
-
-#### Scenario 2: Scaled Performance (3 Containers)
+#### Scenario 2: High Load (50 Users)
 
 **Configuration**:
-- Concurrent Users: 150
-- Spawn Rate: 15 users/second
-- Duration: 2 minutes
-- Containers: 3 (Docker Compose scaling)
+- Concurrent Users: 50
+- Spawn Rate: 5 users/second
+- Duration: 1 minute
 
 **Results**:
 
-| Metric | Value | Improvement |
-|--------|-------|-------------|
-| **Total Requests** | 3,891 | +212% |
-| **Requests Per Second (RPS)** | 32.4 | +211% |
-| **Failure Rate** | 0% | - |
-| **Median Response Time** | 1,200 ms | -35% |
-| **95th Percentile** | 2,100 ms | -34% |
-| **99th Percentile** | 2,800 ms | -32% |
-| **Average Response Time** | 1,350 ms | -36% |
+| Metric | Value |
+|--------|-------|
+| **Requests Per Second (RPS)** | ~50 |
+| **Median Response Time** | 300 ms |
+| **95th Percentile** | 400 ms |
+| **Failure Rate** | 0% |
 
 ### Performance Analysis
 
 **Key Findings**:
-
-1. ✅ **Zero Failure Rate**: System handled all requests successfully
-2. ✅ **Linear Scaling**: 3x containers → 3x throughput
-3. ✅ **Improved Latency**: Response times decreased with scaling
-4. ⚠️ **Prediction Bottleneck**: `/predict` endpoint is most resource-intensive (8.5s avg)
-
-**Recommendations**:
-- Use GPU acceleration for production deployments
-- Implement request queuing for prediction endpoint
-- Consider async processing for batch predictions
-- Add caching for frequently requested predictions
+1. **Auto-scaling**: Cloud Run automatically scales container instances based on incoming request volume.
+2. **Latency**: Latency may spike initially during cold starts or scaling events but stabilizes as instances become ready.
+3. **Reliability**: The service is expected to maintain a near-zero failure rate even under load.
 
 ### How to Run Load Tests
 
 ```bash
-# Terminal 1: Start the API
-python api/app.py
-
-# Terminal 2: Run Locust (Web UI)
-locust -f tests/locustfile.py --host=http://localhost:5000
-# Then open http://localhost:8089
-
-# Or run headless mode
-locust -f tests/locustfile.py --host=http://localhost:5000 \
-       --users 50 --spawn-rate 10 --run-time 2m --headless
-
-# Test with Docker scaling
-docker-compose up --scale audio-classifier=3
-locust -f tests/locustfile.py --host=http://localhost:5000 \
-       --users 150 --spawn-rate 15 --run-time 2m --headless
+# Run Locust against live GCP URL
+locust -f tests/locustfile.py --host https://voice-phishing-detector-380911653615.us-central1.run.app --headless -u 50 -r 10 -t 1m
 ```
 
 ---

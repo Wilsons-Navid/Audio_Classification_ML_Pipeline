@@ -23,12 +23,14 @@ COPY . .
 # Create necessary directories
 RUN mkdir -p data/uploaded data/train data/test models logs
 
-# Expose port
-EXPOSE 5000
+# Expose port (Cloud Run uses PORT env var, defaults to 8080)
+EXPOSE 8080
 
 # Set environment variables
 ENV FLASK_APP=api/app.py
 ENV PYTHONUNBUFFERED=1
+ENV MPLCONFIGDIR=/tmp
 
-# Run the application
-CMD ["python", "api/app.py"]
+# Run the application with proper worker configuration
+# Use shell form to allow environment variable substitution
+CMD gunicorn -w 2 -k gevent -b 0.0.0.0:${PORT:-8080} --timeout 120 api.app:app

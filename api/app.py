@@ -231,13 +231,7 @@ def load_model_with_compat():
 
 @app.route('/')
 def index():
-    """Serve enhanced production dashboard"""
-    return render_template('index_enhanced.html')
-
-
-@app.route('/original')
-def original_dashboard():
-    """Serve original dashboard"""
+    """Serve production dashboard"""
     return render_template('index.html')
 
 

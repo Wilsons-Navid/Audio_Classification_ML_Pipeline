@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Classification Dashboard</title>
+    <title>Voice Phishing Detection - Production Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -19,23 +19,30 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
 
         h1 {
             color: white;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
             font-size: 2.5em;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1em;
         }
 
         .dashboard {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .card {
@@ -69,10 +76,6 @@
         .status-online {
             background: #10b981;
             box-shadow: 0 0 10px #10b981;
-        }
-
-        .status-offline {
-            background: #ef4444;
         }
 
         .metric {
@@ -124,6 +127,22 @@
             background: #5568d3;
         }
 
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
         button {
             width: 100%;
             padding: 12px 20px;
@@ -145,6 +164,22 @@
         button:disabled {
             background: #9ca3af;
             cursor: not-allowed;
+        }
+
+        button.secondary {
+            background: #667eea;
+        }
+
+        button.secondary:hover {
+            background: #5568d3;
+        }
+
+        button.danger {
+            background: #ef4444;
+        }
+
+        button.danger:hover {
+            background: #dc2626;
         }
 
         .prediction-result {
@@ -202,10 +237,10 @@
             border-left: 4px solid #ef4444;
         }
 
-        #selectedFiles {
-            margin-top: 10px;
-            color: #6b7280;
-            font-size: 14px;
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-left: 4px solid #f59e0b;
         }
 
         .loader {
@@ -223,20 +258,103 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .version-item {
+            background: #f9fafb;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .version-item.current {
+            border-left-color: #10b981;
+            background: #d1fae5;
+        }
+
+        .version-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .version-id {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .version-date {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .version-metrics {
+            font-size: 14px;
+            color: #4b5563;
+            margin-top: 5px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .file-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .file-item {
+            padding: 8px;
+            background: #f9fafb;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item.valid {
+            border-left: 3px solid #10b981;
+        }
+
+        .file-item.invalid {
+            border-left: 3px solid #ef4444;
+        }
+
+        .small-btn {
+            padding: 4px 12px;
+            font-size: 12px;
+            margin-top: 5px;
+            width: auto;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Audio Classification Dashboard</h1>
+        <h1>🎙️ Voice Phishing Detection System</h1>
+        <p class="subtitle">Production-Grade ML Pipeline with Validation, Versioning & Rollback</p>
 
         <div class="dashboard">
-            <!-- System Status Card -->
+            <!-- System Status -->
             <div class="card">
                 <h2>System Status</h2>
                 <div class="metric">
                     <span class="metric-label">
                         <span class="status-indicator status-online"></span>
-                        Model Status
+                        API Status
                     </span>
                     <span class="metric-value" id="modelStatus">Online</span>
                 </div>
@@ -245,12 +363,16 @@
                     <span class="metric-value" id="uptime">Loading...</span>
                 </div>
                 <div class="metric">
+                    <span class="metric-label">Current Version</span>
+                    <span class="metric-value" id="currentVersion">Loading...</span>
+                </div>
+                <div class="metric">
                     <span class="metric-label">Last Updated</span>
                     <span class="metric-value" id="lastUpdate">Just now</span>
                 </div>
             </div>
 
-            <!-- Single Prediction Card -->
+            <!-- Single Prediction -->
             <div class="card">
                 <h2>Single File Prediction</h2>
                 <div class="file-input-wrapper">
@@ -263,25 +385,49 @@
                 <div id="singleResult"></div>
             </div>
 
-            <!-- Batch Upload Card -->
+            <!-- Upload with Class Label -->
             <div class="card">
-                <h2>Batch Upload & Retrain</h2>
+                <h2>Upload Training Data</h2>
+                <label style="display: block; margin-bottom: 8px; color: #6b7280; font-weight: 500;">Select Class Label:</label>
+                <select id="classLabel">
+                    <option value="Suspicious">🚨 Suspicious (Phishing)</option>
+                    <option value="Legitimate">✅ Legitimate (Safe)</option>
+                </select>
+
                 <div class="file-input-wrapper">
-                    <input type="file" id="batchFiles" multiple accept=".wav,.mp3,.flac,.ogg">
-                    <label for="batchFiles" class="file-input-label">Choose Multiple Files</label>
+                    <input type="file" id="uploadFiles" multiple accept=".wav,.mp3,.flac,.ogg">
+                    <label for="uploadFiles" class="file-input-label">Choose Multiple Files</label>
                 </div>
-                <div id="selectedFiles"></div>
-                <button onclick="uploadAndRetrain()">Upload & Trigger Retrain</button>
-                <div class="loader" id="batchLoader"></div>
-                <div id="batchResult"></div>
+                <div id="uploadFileList"></div>
+                <button onclick="uploadWithValidation()">Upload & Validate</button>
+                <div class="loader" id="uploadLoader"></div>
+                <div id="uploadResult"></div>
             </div>
         </div>
 
-        <!-- Model Metrics Section -->
+        <!-- Model Versions -->
+        <div class="card" style="margin-bottom: 20px;">
+            <h2>Model Version Control</h2>
+            <button class="secondary" onclick="loadVersions()">Refresh Versions</button>
+            <div id="versionsContainer" style="margin-top: 20px;">
+                <p style="color: #6b7280;">Click "Refresh Versions" to load version history...</p>
+            </div>
+        </div>
+
+        <!-- Retrain Section -->
+        <div class="card">
+            <h2>Retrain Model</h2>
+            <p style="color: #6b7280; margin-bottom: 15px;">Upload files above, then trigger retraining to create a new model version.</p>
+            <button class="danger" onclick="triggerRetraining()">🔄 Trigger Retraining</button>
+            <div class="loader" id="retrainLoader"></div>
+            <div id="retrainResult"></div>
+        </div>
+
+        <!-- Model Metrics -->
         <div class="card">
             <h2>Model Performance Metrics</h2>
             <div id="metricsContainer">
-                <p>Loading metrics...</p>
+                <p style="color: #6b7280;">Loading metrics...</p>
             </div>
         </div>
     </div>
@@ -297,8 +443,25 @@
                     Math.floor(data.uptime_seconds / 60) + ' minutes';
                 document.getElementById('lastUpdate').textContent = 'Just now';
 
+                // Load current version
+                loadCurrentVersion();
             } catch (error) {
                 console.error('Error fetching status:', error);
+            }
+        }
+
+        // Load current version
+        async function loadCurrentVersion() {
+            try {
+                const response = await fetch('/api/v2/versions');
+                const data = await response.json();
+
+                if (data.current_version) {
+                    document.getElementById('currentVersion').textContent =
+                        data.current_version.version_id.substring(0, 15) + '...';
+                }
+            } catch (error) {
+                console.error('Error loading version:', error);
             }
         }
 
@@ -306,14 +469,20 @@
         document.getElementById('singleFile').addEventListener('change', function(e) {
             const fileName = e.target.files[0]?.name || '';
             document.getElementById('singleFileName').innerHTML =
-                fileName ? `<small>Selected: ${fileName}</small>` : '';
+                fileName ? `<small style="color: #6b7280;">Selected: ${fileName}</small>` : '';
         });
 
-        // Show selected files count
-        document.getElementById('batchFiles').addEventListener('change', function(e) {
-            const count = e.target.files.length;
-            document.getElementById('selectedFiles').innerHTML =
-                count > 0 ? `<small>Selected ${count} file(s)</small>` : '';
+        // Show upload file list
+        document.getElementById('uploadFiles').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            if (files.length > 0) {
+                let html = '<div class="file-list">';
+                files.forEach(file => {
+                    html += `<div class="file-item">📎 ${file.name}</div>`;
+                });
+                html += '</div>';
+                document.getElementById('uploadFileList').innerHTML = html;
+            }
         });
 
         // Single file prediction
@@ -366,6 +535,57 @@
                         }
                     }
 
+                    if (data.visualizations) {
+                        html += '<h4 style="margin-top: 20px;">Audio Analysis:</h4>';
+                        
+                        if (data.visualizations.waveform) {
+                            html += `
+                                <div style="margin-top: 10px;">
+                                    <p><strong>Waveform</strong></p>
+                                    <img src="data:image/png;base64,${data.visualizations.waveform}" style="width: 100%; border-radius: 8px;">
+                                    <p style="font-size: 0.9em; color: #6b7280; margin-top: 5px;">
+                                        <em>Shows the amplitude of the audio signal over time. Sudden spikes may indicate aggressive speech patterns common in vishing.</em>
+                                    </p>
+                                </div>
+                            `;
+                        }
+                        
+                        if (data.visualizations.spectrogram) {
+                            html += `
+                                <div style="margin-top: 10px;">
+                                    <p><strong>Mel Spectrogram</strong></p>
+                                    <img src="data:image/png;base64,${data.visualizations.spectrogram}" style="width: 100%; border-radius: 8px;">
+                                    <p style="font-size: 0.9em; color: #6b7280; margin-top: 5px;">
+                                        <em>Visualizes the energy of frequencies over time. High energy in higher frequencies can indicate stress or urgency in the speaker's voice.</em>
+                                    </p>
+                                </div>
+                            `;
+                        }
+                        
+                        if (data.visualizations.mfcc) {
+                            html += `
+                                <div style="margin-top: 10px;">
+                                    <p><strong>MFCC Features</strong></p>
+                                    <img src="data:image/png;base64,${data.visualizations.mfcc}" style="width: 100%; border-radius: 8px;">
+                                    <p style="font-size: 0.9em; color: #6b7280; margin-top: 5px;">
+                                        <em>Represents the short-term power spectrum of sound. These features are critical for distinguishing between human speech characteristics and synthetic/robotic voices.</em>
+                                    </p>
+                                </div>
+                            `;
+                        }
+                        
+                        html += `
+                            <div style="margin-top: 20px; padding: 15px; background: #eef2ff; border-radius: 8px; border-left: 4px solid #667eea;">
+                                <h4 style="color: #4f46e5; margin-bottom: 5px;">Feature Interpretation</h4>
+                                <ul style="list-style-type: disc; margin-left: 20px; color: #4b5563; font-size: 0.95em;">
+                                    <li><strong>Waveform:</strong> Visualizes the loudness and silence patterns. Long silences followed by loud bursts can indicate scripted pauses or aggressive interruptions.</li>
+                                    <li><strong>Mel Spectrogram:</strong> Maps the intensity of different frequencies. Phishing calls often exhibit specific frequency patterns associated with urgency or synthetic audio generation.</li>
+                                    <li><strong>MFCCs:</strong> Captures the "timbre" or quality of the voice. This is the most important feature for detecting deepfakes or voice changers often used in vishing attacks.</li>
+                                </ul>
+                            </div>
+                        `;
+                    }
+
                     html += '</div>';
                     resultDiv.innerHTML = html;
                 } else {
@@ -377,11 +597,12 @@
             }
         }
 
-        // Upload and retrain
-        async function uploadAndRetrain() {
-            const fileInput = document.getElementById('batchFiles');
-            const loader = document.getElementById('batchLoader');
-            const resultDiv = document.getElementById('batchResult');
+        // Upload with validation
+        async function uploadWithValidation() {
+            const fileInput = document.getElementById('uploadFiles');
+            const classLabel = document.getElementById('classLabel').value;
+            const loader = document.getElementById('uploadLoader');
+            const resultDiv = document.getElementById('uploadResult');
 
             if (!fileInput.files.length) {
                 resultDiv.innerHTML = '<div class="alert alert-error">Please select files</div>';
@@ -392,59 +613,168 @@
             for (const file of fileInput.files) {
                 formData.append('files', file);
             }
-            formData.append('class_label', 'new_class'); // You can make this dynamic
+            formData.append('class_label', classLabel);
 
             loader.style.display = 'block';
             resultDiv.innerHTML = '';
 
             try {
-                // Upload files
-                const uploadResponse = await fetch('/upload_training_data', {
+                const response = await fetch('/api/v2/upload_with_label', {
                     method: 'POST',
                     body: formData
                 });
 
-                const uploadData = await uploadResponse.json();
+                const data = await response.json();
+                loader.style.display = 'none';
 
-                if (uploadResponse.ok) {
-                    // Trigger retraining
-                    const retrainResponse = await fetch('/retrain', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            epochs: 30,
-                            batch_size: 32
-                        })
-                    });
+                let html = '';
 
-                    const retrainData = await retrainResponse.json();
-                    loader.style.display = 'none';
+                if (data.valid_count > 0) {
+                    html += `<div class="alert alert-success">
+                        <strong>✓ ${data.valid_count} files uploaded successfully to "${classLabel}"</strong>
+                    `;
 
-                    if (retrainResponse.ok) {
-                        resultDiv.innerHTML = `
-                            <div class="alert alert-success">
-                                <p>✓ Uploaded ${uploadData.files.length} files successfully!</p>
-                                <p>✓ ${retrainData.message}</p>
-                                <div style="margin-top: 15px;">
-                                    <strong>Retraining Progress:</strong>
-                                    <div class="progress" style="height: 30px; margin-top: 10px;">
-                                        <div class="progress-bar" id="retrainProgress" style="width: 0%; transition: width 0.5s;">0%</div>
-                                    </div>
-                                    <p id="retrainMessage" style="margin-top: 10px; color: #6b7280;">Initializing...</p>
-                                </div>
-                            </div>
-                        `;
-
-                        // Start polling for status
-                        pollRetrainingStatus();
-                    } else {
-                        resultDiv.innerHTML = `<div class="alert alert-error">${retrainData.error || retrainData.message}</div>`;
+                    if (data.valid_files && data.valid_files.length > 0) {
+                        html += '<div class="file-list" style="margin-top: 10px;">';
+                        data.valid_files.forEach(file => {
+                            html += `<div class="file-item valid">✓ ${file}</div>`;
+                        });
+                        html += '</div>';
                     }
+                    html += '</div>';
+                }
+
+                if (data.invalid_count > 0) {
+                    html += `<div class="alert alert-warning">
+                        <strong>⚠ ${data.invalid_count} files failed validation</strong>
+                    `;
+
+                    if (data.invalid_files) {
+                        html += '<div class="file-list" style="margin-top: 10px;">';
+                        data.invalid_files.forEach(item => {
+                            html += `<div class="file-item invalid">✗ ${item.file}<br><small>${item.error}</small></div>`;
+                        });
+                        html += '</div>';
+                    }
+                    html += '</div>';
+                }
+
+                resultDiv.innerHTML = html;
+
+            } catch (error) {
+                loader.style.display = 'none';
+                resultDiv.innerHTML = `<div class="alert alert-error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Load versions
+        async function loadVersions() {
+            const container = document.getElementById('versionsContainer');
+            container.innerHTML = '<p style="color: #6b7280;">Loading versions...</p>';
+
+            try {
+                const response = await fetch('/api/v2/versions');
+                const data = await response.json();
+
+                if (data.versions.length === 0) {
+                    container.innerHTML = '<p style="color: #6b7280;">No versions found</p>';
+                    return;
+                }
+
+                let html = '';
+                data.versions.forEach(version => {
+                    const isCurrent = data.current_version &&
+                                    version.version_id === data.current_version.version_id;
+
+                    html += `
+                        <div class="version-item ${isCurrent ? 'current' : ''}">
+                            <div class="version-header">
+                                <div>
+                                    <span class="version-id">${version.version_id}</span>
+                                    ${isCurrent ? '<span class="badge badge-success">CURRENT</span>' : ''}
+                                </div>
+                                <span class="version-date">${new Date(version.created_at).toLocaleString()}</span>
+                            </div>
+                            <div class="version-metrics">
+                                ${version.metrics?.accuracy ? `Accuracy: ${typeof version.metrics.accuracy === 'number' ? (version.metrics.accuracy * 100).toFixed(2) + '%' : version.metrics.accuracy}` : ''}
+                                ${version.metrics?.training_samples ? ` | Samples: ${version.metrics.training_samples}` : ''}
+                            </div>
+                            ${!isCurrent ? `<button class="small-btn secondary" onclick="rollbackVersion('${version.version_id}')">Rollback to This Version</button>` : ''}
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                container.innerHTML = `<div class="alert alert-error">Error loading versions: ${error.message}</div>`;
+            }
+        }
+
+        // Rollback version
+        async function rollbackVersion(versionId) {
+            if (!confirm(`Are you sure you want to rollback to version ${versionId}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/v2/versions/${versionId}/rollback`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`✓ Successfully rolled back to ${versionId}\n\nPlease refresh the page to load the restored model.`);
+                    loadVersions();
+                    updateStatus();
                 } else {
-                    loader.style.display = 'none';
-                    resultDiv.innerHTML = `<div class="alert alert-error">${uploadData.error}</div>`;
+                    alert(`✗ Rollback failed: ${data.error}`);
+                }
+
+            } catch (error) {
+                alert(`✗ Error: ${error.message}`);
+            }
+        }
+
+        // Trigger retraining
+        async function triggerRetraining() {
+            if (!confirm('Start model retraining? This will create a new model version.')) {
+                return;
+            }
+
+            const loader = document.getElementById('retrainLoader');
+            const resultDiv = document.getElementById('retrainResult');
+
+            loader.style.display = 'block';
+            resultDiv.innerHTML = '';
+
+            try {
+                const response = await fetch('/retrain', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({epochs: 30, batch_size: 32})
+                });
+
+                const data = await response.json();
+                loader.style.display = 'none';
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <p><strong>✓ Retraining started!</strong></p>
+                            <div style="margin-top: 15px;">
+                                <strong>Progress:</strong>
+                                <div class="progress" style="height: 30px; margin-top: 10px;">
+                                    <div class="progress-bar" id="retrainProgress" style="width: 0%; transition: width 0.5s; text-align: center; line-height: 30px; color: white; font-weight: 600;">0%</div>
+                                </div>
+                                <p id="retrainMessage" style="margin-top: 10px; color: #6b7280;">Initializing...</p>
+                            </div>
+                        </div>
+                    `;
+                    pollRetrainingStatus();
+                } else {
+                    resultDiv.innerHTML = `<div class="alert alert-error">${data.error || data.message}</div>`;
                 }
             } catch (error) {
                 loader.style.display = 'none';
@@ -469,41 +799,66 @@
                     const messageEl = document.getElementById('retrainMessage');
 
                     if (progressBar && messageEl) {
-                        // Update progress bar
                         progressBar.style.width = `${data.progress}%`;
                         progressBar.textContent = `${data.progress}%`;
-
-                        // Update message
                         messageEl.textContent = data.message || 'Processing...';
 
-                        // Check if completed
                         if (data.status === 'completed') {
                             clearInterval(retrainingPollInterval);
                             progressBar.style.backgroundColor = '#10b981';
                             messageEl.innerHTML = `
-                                <strong style="color: #10b981;">✓ Retraining completed successfully!</strong><br>
-                                <small>Accuracy: ${data.metrics?.metrics?.accuracy || 'N/A'}</small><br>
-                                <small>Model saved at: ${new Date(data.completed_at).toLocaleString()}</small>
+                                <strong style="color: #10b981;">✓ Retraining completed!</strong><br>
+                                <small>Version: ${data.version_id || 'N/A'}</small><br>
+                                <small>Accuracy: ${data.metrics?.metrics?.accuracy || 'N/A'}</small>
                             `;
-
-                            // Refresh page after 3 seconds to load new model
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 3000);
+                            loadVersions();
+                            setTimeout(() => window.location.reload(), 3000);
                         } else if (data.status === 'failed') {
                             clearInterval(retrainingPollInterval);
                             progressBar.style.backgroundColor = '#ef4444';
-                            messageEl.innerHTML = `<strong style="color: #ef4444;">✗ Retraining failed: ${data.error}</strong>`;
+                            messageEl.innerHTML = `<strong style="color: #ef4444;">✗ Failed: ${data.error}</strong>`;
                         }
                     }
                 } catch (error) {
                     console.error('Error polling status:', error);
                 }
-            }, 2000); // Poll every 2 seconds
+            }, 2000);
         }
 
-        // Update status every 30 seconds
+        // Load metrics
+        async function loadMetrics() {
+            try {
+                const response = await fetch('/metrics');
+                const data = await response.json();
+
+                if (data.message) {
+                    document.getElementById('metricsContainer').innerHTML =
+                        `<p style="color: #6b7280;">${data.message}</p>`;
+                    return;
+                }
+
+                let html = '<div class="metric-list">';
+                for (const [key, value] of Object.entries(data)) {
+                    if (key !== 'timestamp') {
+                        html += `
+                            <div class="metric">
+                                <span class="metric-label">${key}</span>
+                                <span class="metric-value">${typeof value === 'number' ? value.toFixed(4) : value}</span>
+                            </div>
+                        `;
+                    }
+                }
+                html += '</div>';
+                document.getElementById('metricsContainer').innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading metrics:', error);
+            }
+        }
+
+        // Initialize
         updateStatus();
+        loadMetrics();
         setInterval(updateStatus, 30000);
     </script>
 </body>
