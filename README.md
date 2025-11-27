@@ -171,7 +171,7 @@ Audio_Classification_ML_Pipeline/
 │
 ├── notebook/
 │   ├── voice_phishing_detection.ipynb          # Training notebook
-│   └── voice_phishing_detection_executed.ipynb # Executed version
+
 │
 ├── src/
 │   ├── preprocessing.py               # Audio preprocessing & feature extraction
@@ -782,7 +782,7 @@ Use the provided `Dockerfile` for deployment to:
 
 ### Location
 
-**File**: `notebook/voice_phishing_detection_executed.ipynb`
+**File**: `notebook/voice_phishing_detection.ipynb`
 
 ### Contents
 
