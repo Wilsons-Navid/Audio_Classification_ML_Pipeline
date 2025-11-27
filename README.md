@@ -13,6 +13,7 @@
 **🚀 Try it now**: [https://voice-phishing-detector-380911653615.us-central1.run.app/](https://voice-phishing-detector-380911653615.us-central1.run.app/)
 
 **Quick Links**:
+**Youtube**: [https://youtu.be/9AQ3FCVb9K0](https://youtu.be/9AQ3FCVb9K0)
 - 📊 **Dashboard**: [https://voice-phishing-detector-380911653615.us-central1.run.app/](https://voice-phishing-detector-380911653615.us-central1.run.app/)
 - 💚 **Health Check**: [https://voice-phishing-detector-380911653615.us-central1.run.app/health](https://voice-phishing-detector-380911653615.us-central1.run.app/health)
 - 📖 **API Docs**: See [API Documentation](#-api-documentation) below
