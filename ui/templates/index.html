@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,11 +29,11 @@
             text-align: center;
             margin-bottom: 10px;
             font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .subtitle {
-            color: rgba(255,255,255,0.9);
+            color: rgba(255, 255, 255, 0.9);
             text-align: center;
             margin-bottom: 30px;
             font-size: 1.1em;
@@ -49,7 +50,7 @@
             background: white;
             border-radius: 15px;
             padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             transition: transform 0.3s ease;
         }
 
@@ -255,8 +256,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .version-item {
@@ -342,6 +348,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>🎙️ Voice Phishing Detection System</h1>
@@ -388,7 +395,8 @@
             <!-- Upload with Class Label -->
             <div class="card">
                 <h2>Upload Training Data</h2>
-                <label style="display: block; margin-bottom: 8px; color: #6b7280; font-weight: 500;">Select Class Label:</label>
+                <label style="display: block; margin-bottom: 8px; color: #6b7280; font-weight: 500;">Select Class
+                    Label:</label>
                 <select id="classLabel">
                     <option value="Suspicious">🚨 Suspicious (Phishing)</option>
                     <option value="Legitimate">✅ Legitimate (Safe)</option>
@@ -417,7 +425,8 @@
         <!-- Retrain Section -->
         <div class="card">
             <h2>Retrain Model</h2>
-            <p style="color: #6b7280; margin-bottom: 15px;">Upload files above, then trigger retraining to create a new model version.</p>
+            <p style="color: #6b7280; margin-bottom: 15px;">Upload files above, then trigger retraining to create a new
+                model version.</p>
             <button class="danger" onclick="triggerRetraining()">🔄 Trigger Retraining</button>
             <div class="loader" id="retrainLoader"></div>
             <div id="retrainResult"></div>
@@ -466,14 +475,14 @@
         }
 
         // Show selected file name
-        document.getElementById('singleFile').addEventListener('change', function(e) {
+        document.getElementById('singleFile').addEventListener('change', function (e) {
             const fileName = e.target.files[0]?.name || '';
             document.getElementById('singleFileName').innerHTML =
                 fileName ? `<small style="color: #6b7280;">Selected: ${fileName}</small>` : '';
         });
 
         // Show upload file list
-        document.getElementById('uploadFiles').addEventListener('change', function(e) {
+        document.getElementById('uploadFiles').addEventListener('change', function (e) {
             const files = Array.from(e.target.files);
             if (files.length > 0) {
                 let html = '<div class="file-list">';
@@ -537,7 +546,7 @@
 
                     if (data.visualizations) {
                         html += '<h4 style="margin-top: 20px;">Audio Analysis:</h4>';
-                        
+
                         if (data.visualizations.waveform) {
                             html += `
                                 <div style="margin-top: 10px;">
@@ -549,7 +558,7 @@
                                 </div>
                             `;
                         }
-                        
+
                         if (data.visualizations.spectrogram) {
                             html += `
                                 <div style="margin-top: 10px;">
@@ -561,7 +570,7 @@
                                 </div>
                             `;
                         }
-                        
+
                         if (data.visualizations.mfcc) {
                             html += `
                                 <div style="margin-top: 10px;">
@@ -573,7 +582,7 @@
                                 </div>
                             `;
                         }
-                        
+
                         html += `
                             <div style="margin-top: 20px; padding: 15px; background: #eef2ff; border-radius: 8px; border-left: 4px solid #667eea;">
                                 <h4 style="color: #4f46e5; margin-bottom: 5px;">Feature Interpretation</h4>
@@ -673,7 +682,7 @@
             container.innerHTML = '<p style="color: #6b7280;">Loading versions...</p>';
 
             try {
-                const response = await fetch('/api/v2/versions');
+                const response = await fetch(`/api/v2/versions?t=${new Date().getTime()}`);
                 const data = await response.json();
 
                 if (data.versions.length === 0) {
@@ -684,7 +693,7 @@
                 let html = '';
                 data.versions.forEach(version => {
                     const isCurrent = data.current_version &&
-                                    version.version_id === data.current_version.version_id;
+                        version.version_id === data.current_version.version_id;
 
                     html += `
                         <div class="version-item ${isCurrent ? 'current' : ''}">
@@ -752,8 +761,8 @@
             try {
                 const response = await fetch('/retrain', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({epochs: 30, batch_size: 32})
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ epochs: 30, batch_size: 32 })
                 });
 
                 const data = await response.json();
@@ -862,4 +871,5 @@
         setInterval(updateStatus, 30000);
     </script>
 </body>
+
 </html>

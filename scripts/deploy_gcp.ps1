@@ -91,7 +91,8 @@ if (-not $ProjectId) {
 if (-not $Tag -or $Tag -eq "") {
     try {
         $gitShort = (git rev-parse --short HEAD 2>$null)
-    } catch { $gitShort = $null }
+    }
+    catch { $gitShort = $null }
     if ($gitShort) { $Tag = $gitShort } else { $Tag = "latest" }
 }
 
@@ -151,8 +152,8 @@ gcloud run deploy $ServiceName `
     --platform managed `
     --region $Region `
     $allowFlag `
-    --memory 2Gi `
-    --cpu 2 `
+    --memory 8Gi `
+    --cpu 4 `
     --project $ProjectId
 Check-LastExitCode
 

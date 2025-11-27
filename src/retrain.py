@@ -135,70 +135,44 @@ class ModelRetrainer:
         logger.info(f"Organized {files_organized['train']} training and {files_organized['test']} test files")
 
     def load_training_data(self):
-        """Load data from train directory and uploaded files"""
-        train_dir = os.path.join(self.data_dir, 'train')
+        """Load data ONLY from uploaded files for fast retraining (Transfer Learning)"""
         uploaded_dir = os.path.join(self.data_dir, 'uploaded', 'training')
+        
+        # Hardcode class names to match pretrained model and ensure consistency
+        class_names = ['Legitimate', 'Suspicious']
+        all_files = {c: [] for c in class_names}
+        
+        logger.info("FAST RETRAINING MODE: Skipping original dataset, loading only uploaded files...")
 
-        # First, organize RAVDESS data if train directory is empty
-        if not os.path.exists(train_dir) or not os.listdir(train_dir):
-            logger.info("Train directory empty, organizing RAVDESS data...")
-            self.organize_ravdess_data()
-
-        # Get class directories from train
-        class_dirs = []
-        all_files = {}
-
-        if os.path.exists(train_dir):
-            class_dirs = [d for d in os.listdir(train_dir)
-                         if os.path.isdir(os.path.join(train_dir, d))]
-
-            for class_name in class_dirs:
-                if class_name not in all_files:
-                    all_files[class_name] = []
-
-                class_dir = os.path.join(train_dir, class_name)
-                audio_files = [os.path.join(class_dir, f) for f in os.listdir(class_dir)
-                              if f.endswith('.wav')]
-                all_files[class_name].extend(audio_files)
-
-        # Add uploaded files (map new_class to Suspicious as default)
+        # Add uploaded files
         if os.path.exists(uploaded_dir):
-            uploaded_classes = [d for d in os.listdir(uploaded_dir)
+            uploaded_classes = [d for d in os.listdir(uploaded_dir) 
                                if os.path.isdir(os.path.join(uploaded_dir, d))]
-
+            
             for uploaded_class in uploaded_classes:
                 # Map uploaded class (could make this configurable)
                 mapped_class = 'Suspicious' if uploaded_class == 'new_class' else uploaded_class
-
-                if mapped_class not in all_files:
-                    all_files[mapped_class] = []
-                    if mapped_class not in class_dirs:
-                        class_dirs.append(mapped_class)
-
-                uploaded_class_dir = os.path.join(uploaded_dir, uploaded_class)
-                audio_files = [os.path.join(uploaded_class_dir, f)
-                              for f in os.listdir(uploaded_class_dir)
-                              if f.endswith('.wav')]
-                all_files[mapped_class].extend(audio_files)
-
-                logger.info(f"Added {len(audio_files)} uploaded files to class '{mapped_class}'")
-
-        if not class_dirs:
-            raise ValueError("No class directories found in training data")
-
-        logger.info(f"Found {len(class_dirs)} classes: {class_dirs}")
+                
+                if mapped_class in all_files:
+                    uploaded_class_dir = os.path.join(uploaded_dir, uploaded_class)
+                    audio_files = [os.path.join(uploaded_class_dir, f) 
+                                  for f in os.listdir(uploaded_class_dir) 
+                                  if f.endswith('.wav')]
+                    all_files[mapped_class].extend(audio_files)
+                    logger.info(f"Added {len(audio_files)} uploaded files to class '{mapped_class}'")
+                else:
+                    logger.warning(f"Uploaded class '{uploaded_class}' mapped to '{mapped_class}' not in target classes {class_names}")
 
         X = []
         y = []
-        class_names = sorted(class_dirs)
-
+        
         for class_idx, class_name in enumerate(class_names):
             files = all_files.get(class_name, [])
             logger.info(f"Loading {len(files)} files from class '{class_name}'")
-
+            
             for file_path in files:
                 try:
-                    features = self.preprocessor.extract_features(file_path)
+                    features, _ = self.preprocessor.preprocess_file(file_path)
                     X.append(features)
                     y.append(class_idx)
                 except Exception as e:
@@ -206,12 +180,15 @@ class ModelRetrainer:
 
         X = np.array(X)
         y = np.array(y)
+        
+        if len(X) == 0:
+             logger.warning("No uploaded data found! Training will likely fail or do nothing.")
+        else:
+            # Add channel dimension
+            X = X[..., np.newaxis]
 
-        # Add channel dimension
-        X = X[..., np.newaxis]
-
-        logger.info(f"Loaded {len(X)} samples, shape: {X.shape}")
-
+        logger.info(f"Loaded {len(X)} samples for retraining, shape: {X.shape}")
+        
         return X, y, class_names
 
     def load_test_data(self):
@@ -236,7 +213,7 @@ class ModelRetrainer:
             for audio_file in audio_files:
                 file_path = os.path.join(class_dir, audio_file)
                 try:
-                    features = self.preprocessor.extract_features(file_path)
+                    features, _ = self.preprocessor.preprocess_file(file_path)
                     X_test.append(features)
                     y_test.append(class_idx)
                 except Exception as e:
@@ -369,6 +346,7 @@ class ModelRetrainer:
             save_json(metadata, metadata_path)
 
             # Save training history
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             history_path = os.path.join(self.logs_dir, f'training_history_{timestamp}.json')
             history_data = {
                 'loss': [float(x) for x in history.history.get('loss', [])],

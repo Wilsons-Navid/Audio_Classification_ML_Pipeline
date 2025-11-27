@@ -1,10 +1,68 @@
 {
-  "status": "failed",
-  "progress": 40,
-  "message": "Retraining failed: Input 0 of layer \"conv2d\" is incompatible with the layer: expected min_ndim=4, found ndim=3. Full shape received: (None, 1, 1)",
-  "started_at": "2025-11-18T09:11:06.040164",
-  "completed_at": null,
-  "error": "Input 0 of layer \"conv2d\" is incompatible with the layer: expected min_ndim=4, found ndim=3. Full shape received: (None, 1, 1)",
-  "metrics": {},
-  "version_id": null
+  "status": "completed",
+  "progress": 100,
+  "message": "Retraining completed successfully! Model saved to models\\vishing_detector_keras3.keras",
+  "started_at": "2025-11-27T06:35:41.092651",
+  "completed_at": "2025-11-27T06:37:28.415828",
+  "error": null,
+  "metrics": {
+    "timestamp": "2025-11-27T06:37:28.411278",
+    "input_shape": [
+      40,
+      173
+    ],
+    "num_classes": 2,
+    "class_names": [
+      "Legitimate",
+      "Suspicious"
+    ],
+    "training_samples": 725,
+    "test_samples": 125,
+    "epochs": 30,
+    "batch_size": 32,
+    "metrics": {
+      "accuracy": 0.904,
+      "precision": 0.9209411764705883,
+      "recall": 0.904,
+      "f1_score": 0.904073732718894,
+      "confusion_matrix": [
+        [
+          57,
+          12
+        ],
+        [
+          0,
+          56
+        ]
+      ],
+      "classification_report": {
+        "0": {
+          "precision": 1.0,
+          "recall": 0.8260869565217391,
+          "f1-score": 0.9047619047619048,
+          "support": 69.0
+        },
+        "1": {
+          "precision": 0.8235294117647058,
+          "recall": 1.0,
+          "f1-score": 0.9032258064516129,
+          "support": 56.0
+        },
+        "accuracy": 0.904,
+        "macro avg": {
+          "precision": 0.9117647058823529,
+          "recall": 0.9130434782608696,
+          "f1-score": 0.9039938556067588,
+          "support": 125.0
+        },
+        "weighted avg": {
+          "precision": 0.9209411764705883,
+          "recall": 0.904,
+          "f1-score": 0.904073732718894,
+          "support": 125.0
+        }
+      }
+    }
+  },
+  "version_id": "retrained_v4_acc90_20251127_0637"
 }

@@ -33,13 +33,59 @@ class ModelVersionManager:
         """Load model registry from disk"""
         if os.path.exists(self.registry_file):
             with open(self.registry_file, 'r') as f:
-                return json.load(f)
+                registry = json.load(f)
+                # Normalize paths for cross-platform compatibility
+                for version in registry.get('versions', []):
+                    if 'model_file' in version:
+                        version['model_file'] = version['model_file'].replace('\\', '/')
+                    if 'original_model' in version:
+                        version['original_model'] = version['original_model'].replace('\\', '/')
+                
+                # Normalize metadata paths
+                for v_id, meta in registry.get('metadata', {}).items():
+                    if 'model_file' in meta:
+                        meta['model_file'] = meta['model_file'].replace('\\', '/')
+                    if 'original_model' in meta:
+                        meta['original_model'] = meta['original_model'].replace('\\', '/')
+                        
+                return registry
         else:
-            return {
+            registry = {
                 'current_version': None,
                 'versions': [],
                 'metadata': {}
             }
+            
+            # Bootstrap with existing model if available
+            main_model_path = os.path.join(self.models_dir, 'vishing_detector_keras3.keras')
+            if os.path.exists(main_model_path):
+                # Create initial version
+                version_id = 'pretrained-model'
+                version_dir = os.path.join(self.versions_dir, version_id)
+                os.makedirs(version_dir, exist_ok=True)
+                
+                # Copy model
+                shutil.copy2(main_model_path, os.path.join(version_dir, 'model.keras'))
+                
+                # Create metadata
+                version_metadata = {
+                    'version_id': version_id,
+                    'created_at': datetime.fromtimestamp(os.path.getctime(main_model_path)).isoformat(),
+                    'model_file': os.path.join(version_dir, 'model.keras'),
+                    'original_model': main_model_path,
+                    'metrics': {'accuracy': 'Original'},
+                    'status': 'active'
+                }
+                
+                registry['versions'].append(version_metadata)
+                registry['metadata'][version_id] = version_metadata
+                registry['current_version'] = version_id
+                
+                # Save immediately
+                with open(self.registry_file, 'w') as f:
+                    json.dump(registry, f, indent=2)
+                    
+            return registry
 
     def _save_registry(self):
         """Save model registry to disk"""
@@ -58,8 +104,19 @@ class ModelVersionManager:
             version_id (str)
         """
         # Generate version ID
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        version_id = f"v_{timestamp}"
+        # Format: retrained_v{count}_acc{accuracy}_{timestamp}
+        count = len(self.registry['versions']) + 1
+        
+        acc_str = ""
+        if metadata and 'accuracy' in metadata:
+            try:
+                acc = float(metadata['accuracy'])
+                acc_str = f"_acc{int(acc*100)}"
+            except (ValueError, TypeError):
+                pass
+                
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+        version_id = f"retrained_v{count}{acc_str}_{timestamp}"
 
         # Create version directory
         version_dir = os.path.join(self.versions_dir, version_id)
@@ -67,7 +124,7 @@ class ModelVersionManager:
 
         # Copy model file
         model_ext = Path(model_path).suffix
-        versioned_model_path = os.path.join(version_dir, f'model{model_ext}')
+        versioned_model_path = os.path.join(version_dir, f'model{model_ext}').replace('\\', '/')
         shutil.copy2(model_path, versioned_model_path)
 
         # Copy metadata if it exists
@@ -97,10 +154,12 @@ class ModelVersionManager:
 
     def get_version(self, version_id):
         """Get metadata for a specific version"""
+        self.registry = self._load_registry()
         return self.registry['metadata'].get(version_id)
 
     def list_versions(self, limit=10):
         """List recent model versions"""
+        self.registry = self._load_registry()
         versions = sorted(
             self.registry['versions'],
             key=lambda x: x['created_at'],
@@ -110,6 +169,7 @@ class ModelVersionManager:
 
     def get_current_version(self):
         """Get current active version"""
+        self.registry = self._load_registry()
         version_id = self.registry.get('current_version')
         if version_id:
             return self.registry['metadata'].get(version_id)

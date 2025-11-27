@@ -1,0 +1,135 @@
+{
+  "current_version": "retrained_v3_acc96_20251127_0632",
+  "versions": [
+    {
+      "version_id": "pretrained-model",
+      "created_at": "2025-11-26T17:09:29.549288",
+      "model_file": "models\\versions\\pretrained-model\\model.keras",
+      "original_model": "models\\vishing_detector_keras3.keras",
+      "metrics": {
+        "accuracy": "Original"
+      },
+      "status": "active"
+    },
+    {
+      "version_id": "retrained_v2_acc98_20251127_0629",
+      "created_at": "2025-11-27T06:29:50.227803",
+      "model_file": "models\\versions\\retrained_v2_acc98_20251127_0629\\model.keras",
+      "original_model": "models\\vishing_detector_keras3.keras",
+      "metrics": {
+        "accuracy": 0.984,
+        "training_samples": 725,
+        "test_samples": 125,
+        "epochs": 30,
+        "batch_size": 32,
+        "classes": [
+          "Legitimate",
+          "Suspicious"
+        ]
+      },
+      "status": "active"
+    },
+    {
+      "version_id": "retrained_v3_acc96_20251127_0632",
+      "created_at": "2025-11-27T06:32:15.176481",
+      "model_file": "models\\versions\\retrained_v3_acc96_20251127_0632\\model.keras",
+      "original_model": "models\\vishing_detector_keras3.keras",
+      "metrics": {
+        "accuracy": 0.968,
+        "training_samples": 725,
+        "test_samples": 125,
+        "epochs": 30,
+        "batch_size": 32,
+        "classes": [
+          "Legitimate",
+          "Suspicious"
+        ]
+      },
+      "status": "active"
+    },
+    {
+      "version_id": "retrained_v4_acc90_20251127_0637",
+      "created_at": "2025-11-27T06:37:28.403306",
+      "model_file": "models\\versions\\retrained_v4_acc90_20251127_0637\\model.keras",
+      "original_model": "models\\vishing_detector_keras3.keras",
+      "metrics": {
+        "accuracy": 0.904,
+        "training_samples": 725,
+        "test_samples": 125,
+        "epochs": 30,
+        "batch_size": 32,
+        "classes": [
+          "Legitimate",
+          "Suspicious"
+        ]
+      },
+      "status": "active"
+    }
+  ],
+  "metadata": {
+    "pretrained-model": {
+      "version_id": "pretrained-model",
+      "created_at": "2025-11-26T17:09:29.549288",
+      "model_file": "models\\versions\\pretrained-model\\model.keras",
+      "original_model": "models\\vishing_detector_keras3.keras",
+      "metrics": {
+        "accuracy": "Original"
+      },
+      "status": "active"
+    },
+    "retrained_v2_acc98_20251127_0629": {
+      "version_id": "retrained_v2_acc98_20251127_0629",
+      "created_at": "2025-11-27T06:29:50.227803",
+      "model_file": "models\\versions\\retrained_v2_acc98_20251127_0629\\model.keras",
+      "original_model": "models\\vishing_detector_keras3.keras",
+      "metrics": {
+        "accuracy": 0.984,
+        "training_samples": 725,
+        "test_samples": 125,
+        "epochs": 30,
+        "batch_size": 32,
+        "classes": [
+          "Legitimate",
+          "Suspicious"
+        ]
+      },
+      "status": "active"
+    },
+    "retrained_v3_acc96_20251127_0632": {
+      "version_id": "retrained_v3_acc96_20251127_0632",
+      "created_at": "2025-11-27T06:32:15.176481",
+      "model_file": "models\\versions\\retrained_v3_acc96_20251127_0632\\model.keras",
+      "original_model": "models\\vishing_detector_keras3.keras",
+      "metrics": {
+        "accuracy": 0.968,
+        "training_samples": 725,
+        "test_samples": 125,
+        "epochs": 30,
+        "batch_size": 32,
+        "classes": [
+          "Legitimate",
+          "Suspicious"
+        ]
+      },
+      "status": "active"
+    },
+    "retrained_v4_acc90_20251127_0637": {
+      "version_id": "retrained_v4_acc90_20251127_0637",
+      "created_at": "2025-11-27T06:37:28.403306",
+      "model_file": "models\\versions\\retrained_v4_acc90_20251127_0637\\model.keras",
+      "original_model": "models\\vishing_detector_keras3.keras",
+      "metrics": {
+        "accuracy": 0.904,
+        "training_samples": 725,
+        "test_samples": 125,
+        "epochs": 30,
+        "batch_size": 32,
+        "classes": [
+          "Legitimate",
+          "Suspicious"
+        ]
+      },
+      "status": "active"
+    }
+  }
+}

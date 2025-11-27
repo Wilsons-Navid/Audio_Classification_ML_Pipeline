@@ -1,0 +1,39 @@
+# Version Control
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+env/
+.venv
+.env
+
+# Data
+data/raw/
+data/uploaded/
+retraining_samples/
+
+# Debug Scripts
+debug_*.py
+upload_test_data.py
+
+# Logs
+# logs/ (Removed to allow metrics.json)
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Models (Exclude backups, keep production models and versions)
+models/*_backup.keras
+models/vishing_detector_savedmodel/
+models/vishing_detector_savedmodel_v2/
