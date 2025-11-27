@@ -5,6 +5,21 @@
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange.svg)](https://www.tensorflow.org/)
 [![Flask](https://img.shields.io/badge/Flask-2.x-green.svg)](https://flask.palletsprojects.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## 🌐 Live Production Deployment
+
+**✅ Status**: **LIVE AND OPERATIONAL** (Model loaded successfully!)
+
+**🚀 Try it now**: [https://voice-phishing-detector-380911653615.us-central1.run.app/](https://voice-phishing-detector-380911653615.us-central1.run.app/)
+
+**Quick Links**:
+- 📊 **Dashboard**: [https://voice-phishing-detector-380911653615.us-central1.run.app/](https://voice-phishing-detector-380911653615.us-central1.run.app/)
+- 💚 **Health Check**: [https://voice-phishing-detector-380911653615.us-central1.run.app/health](https://voice-phishing-detector-380911653615.us-central1.run.app/health)
+- 📖 **API Docs**: See [API Documentation](#-api-documentation) below
+
+**Deployment Details**:
+- **Platform**: Google Cloud Run
+- **Model Format**: H5 (Keras 3 compatible)
 - **Model**: CNN with 489,730 parameters
 - **Classes**: Legitimate, Suspicious
 - **Last Verified**: 2025-11-21
